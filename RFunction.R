@@ -3,6 +3,8 @@ library('raster')
 
 rFunction <- function(data,resol=NULL) #resolution in m
 {
+  png("SegmentPlot-Raster.png") ##
+  
   if (is.null(resol))
   {
     logger.info("You have not chosen a raster resolution. Please change. Return lines plot.")
@@ -51,4 +53,5 @@ rFunction <- function(data,resol=NULL) #resolution in m
     coastlinesT_crop <- crop(x = coastlinesT, y=MigRaster)
     plot(coastlinesT_crop, add = TRUE)
   }
+  dev.off() ##
 }
