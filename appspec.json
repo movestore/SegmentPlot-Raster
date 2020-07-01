@@ -1,0 +1,24 @@
+{
+  "settings": [
+    {
+      "id": "grid",
+      "name": "Grid size for raster output",
+      "description": "Select grid size for the migration raster. Start with larger values to test run time.",
+      "defaultValue": 50000,
+      "type": "INTEGER"
+    }
+  ],
+  "dependencies": {
+    "R": [
+      {
+        "name": "shiny"
+      },
+      {
+        "name": "raster"
+      },
+	        {
+        "name": "move"
+      }
+    ]
+  }
+}
