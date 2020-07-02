@@ -1,6 +1,7 @@
 library(move)
 library(shiny)
 library(raster)
+library(foreach)
 
 shinyModuleUserInterface <- function(id, label, grid = 50000) {
   ns <- NS(id)
@@ -30,7 +31,7 @@ shinyModule <- function(input, output, session, data, grid = 50000) {
   current <- reactiveVal(data)
   
   migrasterObj <- reactive({
-    data.split <- split(dataObj())
+    data.split <- split(dataObj()) #change to check if MoveStack...
     L <- foreach(datai = data.split) %do% {
       print(namesIndiv(datai))
       Line(coordinates(datai))
