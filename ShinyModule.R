@@ -9,7 +9,7 @@ shinyModuleUserInterface <- function(id, label, grid = 50000) {
     titlePanel("Raster map of migration density"),
     sliderInput(inputId = ns("grid"), 
                 label = "Choose a raster grid size in m", 
-                value = 50000, min = 1000, max = 300000, selected = grid),
+                value = grid, min = 1000, max = 300000),
     plotOutput(ns("map"))
   )
 }
