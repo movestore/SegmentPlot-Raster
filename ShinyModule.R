@@ -1,7 +1,7 @@
-library(move)
-library(shiny)
-library(raster)
-library(foreach)
+library('move')
+library('shiny')
+library('raster')
+library('foreach')
 
 shinyModuleUserInterface <- function(id, label, grid = 50000) {
   ns <- NS(id)
