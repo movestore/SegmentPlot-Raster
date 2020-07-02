@@ -2,14 +2,14 @@ library(move)
 library(shiny)
 library(raster)
 
-shinyModuleUserInterface <- function(id, label) {
+shinyModuleUserInterface <- function(id, label, grid = 50000) {
   ns <- NS(id)
   
   tagList(
     titlePanel("Raster map of migration density"),
     sliderInput(inputId = ns("grid"), 
                 label = "Choose a raster grid size in m", 
-                value = 50000, min = 1000, max = 300000),
+                value = 50000, min = 1000, max = 300000, selected = grid),
     plotOutput(ns("map"))
   )
 }
@@ -18,10 +18,14 @@ shinyModuleConfiguration <- function(id, input) {
   ns <- NS(id)
   configuration <- list()
 
+  print(ns('grid'))
+
+  configuration["grid"] <- input[[ns('grid')]]
+
   configuration
 }
 
-shinyModule <- function(input, output, session, data) {
+shinyModule <- function(input, output, session, data, grid = 50000) {
   dataObj <- reactive({ data })
   current <- reactiveVal(data)
   
