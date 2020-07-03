@@ -2,6 +2,8 @@ library('move')
 library('shiny')
 library('raster')
 library('foreach')
+library('sf')
+library('fasterize')
 
 shinyModuleUserInterface <- function(id, label, grid = 50000) {
   ns <- NS(id)
@@ -40,18 +42,29 @@ shinyModule <- function(input, output, session, data, grid = 50000) {
     
     Ls <-  Lines(L,"ID"="segm")
     sLs <- SpatialLines(list(Ls),proj4string=CRS("+proj=longlat +ellps=WGS84"))
-    sLsT <- spTransform(sLs,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
-    rasterize(sLsT,raster(ext=extent(sLsT), resolution=input$grid, crs = "+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs", vals=NULL),fun=function(x,...) sum(length(x)),update=TRUE)
   })
   
+  migrasterObjT <- reactive({
+    sLsT <- spTransform(migrasterObj(),CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+    
+    outputRaster <- raster(ext=extent(sLsT), resolution=grid, crs = "+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs", vals=NULL)
+    
+    sLsT.poly <- buffer(sLsT,width=input$grid/2)
+    sLsT.sf <- st_as_sf(sLsT.poly)
+    fasterize(sLsT.sf,outputRaster,fun="count")
+    
+    #rasterize(sLsT,outputRaster,fun=function(x,...) sum(length(x)),update=TRUE)
+  })  
+
   coastlinesObj <- reactive({
     coastlines <- readOGR("ne-coastlines-10m/ne_10m_coastline.shp")
-    spTransform(coastlines,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+    coastlinesC <- crop(coastlines,extent(migrasterObj()))
+    spTransform(coastlinesC,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
   })
   
   output$map <- renderPlot({
-    plot(migrasterObj(),colNA=NA,axes=FALSE,asp=1)  
-    plot(crop(x=coastlinesObj(), y=migrasterObj()), add = TRUE)
+    plot(migrasterObjT(),colNA=NA,axes=FALSE,asp=1)  
+    plot(coastlinesObj(), add = TRUE)
   })
   
   return(reactive({ current() }))
