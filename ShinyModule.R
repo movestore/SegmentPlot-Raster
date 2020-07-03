@@ -31,7 +31,7 @@ shinyModule <- function(input, output, session, data, grid = 50000) {
   current <- reactiveVal(data)
   
   migrasterObj <- reactive({
-    data.split <- split(dataObj()) #change to check if MoveStack...
+    data.split <- move::split(dataObj())
     L <- foreach(datai = data.split) %do% {
       print(namesIndiv(datai))
       Line(coordinates(datai))
