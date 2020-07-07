@@ -4,6 +4,7 @@ library('raster')
 library('foreach')
 library('sf')
 library('fasterize')
+library('rgeos')
 
 shinyModuleUserInterface <- function(id, label, grid = 50000) {
   ns <- NS(id)
