@@ -6,7 +6,7 @@ library('sf')
 library('fasterize')
 library('rgeos')
 
-setwd("root/app/")
+setwd("/root/app/")
 
 shinyModuleUserInterface <- function(id, label, grid = 50000) {
   ns <- NS(id)
