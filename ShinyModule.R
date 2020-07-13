@@ -58,7 +58,7 @@ shinyModule <- function(input, output, session, data, grid = 50000) {
   })  
 
   coastlinesObj <- reactive({
-    coastlines <- readOGR("ne-coastlines-10m/ne_10m_coastline.shp")
+    coastlines <- readOGR("/root/app/ne-coastlines-10m/ne_10m_coastline.shp")
     coastlinesC <- crop(coastlines,extent(migrasterObj()))
     spTransform(coastlinesC,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
   })
