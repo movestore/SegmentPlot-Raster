@@ -6,7 +6,24 @@
       "description": "Select grid size for the migration raster. Start with larger values to test run time.",
       "defaultValue": 50000,
       "type": "INTEGER"
-    }
+    },
+	{
+      "id": "meth",
+      "name": "Method to transform into raster plot",
+      "description": "Select which function you want to use for rasterization",
+      "defaultValue": "fast",
+      "type": "RADIOBUTTONS",
+      "options": [
+        {
+          "value": "fast",
+          "displayText": "fasterize with buffer around lines"
+        },
+                {
+          "value": "rast",
+          "displayText": "rasterize as correct lines (slow for large data)"
+        }
+	  ]
+	}
   ],
   "dependencies": {
     "R": [

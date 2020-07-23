@@ -6,9 +6,9 @@ library('sf')
 library('fasterize')
 library('rgeos')
 
-setwd("/root/app/")
+#setwd("/root/app/")
 
-shinyModuleUserInterface <- function(id, label, grid = 50000) {
+shinyModuleUserInterface <- function(id, label, grid = 50000, meth="fast") {
   ns <- NS(id)
   
   tagList(
@@ -16,6 +16,10 @@ shinyModuleUserInterface <- function(id, label, grid = 50000) {
     sliderInput(inputId = ns("grid"), 
                 label = "Choose a raster grid size in m", 
                 value = grid, min = 1000, max = 300000),
+    radioButtons(inputId = ns("meth"),
+                 label = "Select rasterizing method",
+                 choices = c("fasterize with buffer" = "fast", "rasterize as lines (slow for large data)"="rast"),
+                 selected = meth, inline = TRUE),
     plotOutput(ns("map"))
   )
 }
@@ -25,13 +29,15 @@ shinyModuleConfiguration <- function(id, input) {
   configuration <- list()
 
   print(ns('grid'))
-
   configuration["grid"] <- input[[ns('grid')]]
 
+  print(ns('meth'))
+  configuration["meth"] <- input[[ns('meth')]]
+  
   configuration
 }
 
-shinyModule <- function(input, output, session, data, grid = 50000) {
+shinyModule <- function(input, output, session, data, grid = 50000, meth="fast") {
   dataObj <- reactive({ data })
   current <- reactiveVal(data)
   
@@ -39,7 +45,7 @@ shinyModule <- function(input, output, session, data, grid = 50000) {
     data.split <- move::split(dataObj())
     L <- foreach(datai = data.split) %do% {
       print(namesIndiv(datai))
-      Line(coordinates(datai))
+      Line(coordinates(datai)) #here add if... needs 2 points per ID
     }
     names(L) <- names(data.split)
     
@@ -50,19 +56,31 @@ shinyModule <- function(input, output, session, data, grid = 50000) {
   migrasterObjT <- reactive({
     sLsT <- spTransform(migrasterObj(),CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
     
-    outputRaster <- raster(ext=extent(sLsT), resolution=grid, crs = "+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs", vals=NULL)
+    outputRaster <- raster(ext=extent(sLsT), resolution=input$grid, crs = "+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs", vals=NULL)
     
-    sLsT.poly <- buffer(sLsT,width=input$grid/2)
-    sLsT.sf <- st_as_sf(sLsT.poly)
-    fasterize(sLsT.sf,outputRaster,fun="count")
-    
-    #rasterize(sLsT,outputRaster,fun=function(x,...) sum(length(x)),update=TRUE)
+    if (input$meth=="fast")
+    {
+      logger.info(paste("fasterize() for fast raster plotting. Calculated buffer polygon of width",input$grid/2,"."))
+      sLsT.poly <- buffer(sLsT,width=input$grid/2)
+      sLsT.sf <- st_as_sf(sLsT.poly)
+      out <- fasterize(sLsT.sf,outputRaster,fun="count")
+      if (length(out)==1 & is.na(values(out)[1]))
+      {
+        values(out) <- 1
+        logger.info("Output is just one raster cell with NA density. Likely not enough data points or too large grid size. Return single cell raster with value 1.")
+      }
+    } else
+    {
+      logger.info("rasterize() for more flexible and correct, but slow raster plotting. No buffer.")
+      out <- rasterize(sLsT,outputRaster,fun=function(x,...) sum(length(x)),update=TRUE)
+    }
+    out
   })  
 
   coastlinesObj <- reactive({
     coastlines <- readOGR("ne-coastlines-10m/ne_10m_coastline.shp")
-    coastlinesC <- crop(coastlines,extent(migrasterObj()))
-    spTransform(coastlinesC,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+    #if (raster::area(gEnvelope(migrasterObj())) > (input$grid*input$grid)) coastlinesC <- crop(coastlines,extent(migrasterObj())) #crop gives too much error
+    spTransform(coastlines,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
   })
   
   output$map <- renderPlot({
