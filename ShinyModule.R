@@ -18,7 +18,7 @@ shinyModuleUserInterface <- function(id, label, grid = 50000, meth="fast") {
                 value = grid, min = 1000, max = 300000),
     radioButtons(inputId = ns("meth"),
                  label = "Select rasterizing method",
-                 choices = c("fasterize with buffer" = "fast", "rasterize as lines (slow for large data)"="rast"),
+                 choices = c("fasterize with buffer (slow for dense data)" = "fast", "rasterize as lines (slow for large data)"="rast"),
                  selected = meth, inline = TRUE),
     plotOutput(ns("map"))
   )
@@ -43,11 +43,12 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
   
   migrasterObj <- reactive({
     data.split <- move::split(dataObj())
-    L <- foreach(datai = data.split) %do% {
+    data.split_nozero <- data.split[unlist(lapply(data.split, length) > 1)] #remove all move objects with less than 2 positions
+    L <- foreach(datai = data.split_nozero) %do% {
       print(namesIndiv(datai))
-      Line(coordinates(datai)) #here add if... needs 2 points per ID
+      Line(coordinates(datai))
     }
-    names(L) <- names(data.split)
+    names(L) <- names(data.split_nozero)
     
     Ls <-  Lines(L,"ID"="segm")
     sLs <- SpatialLines(list(Ls),proj4string=CRS("+proj=longlat +ellps=WGS84"))
@@ -60,8 +61,8 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
     
     if (input$meth=="fast")
     {
-      logger.info(paste("fasterize() for fast raster plotting. Calculated buffer polygon of width",input$grid/2,"."))
-      sLsT.poly <- buffer(sLsT,width=input$grid/2)
+      logger.info(paste("fasterize() for fast raster plotting. Calculated buffer polygon of width",input$grid/2,". Buffer slow if dense points."))
+      sLsT.poly <- gBuffer(sLsT,width=input$grid/4) #this seems to be a bottleneck for dense data
       sLsT.sf <- st_as_sf(sLsT.poly)
       out <- fasterize(sLsT.sf,outputRaster,fun="count")
       if (length(out)==1 & is.na(values(out)[1]))
@@ -79,14 +80,18 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
 
   coastlinesObj <- reactive({
     coastlines <- readOGR("ne-coastlines-10m/ne_10m_coastline.shp")
-    #if (raster::area(gEnvelope(migrasterObj())) > (input$grid*input$grid)) coastlinesC <- crop(coastlines,extent(migrasterObj())) #crop gives too much error
-    spTransform(coastlines,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+    if (raster::area(gEnvelope(migrasterObj())) > input$grid) coastlinesC <- crop(coastlines,extent(migrasterObj())) else coastlinesC <- coastlines
+    coast <- spTransform(coastlinesC,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+    coast
   })
   
   output$map <- renderPlot({
-    plot(migrasterObjT(),colNA=NA,axes=FALSE,asp=1)  
+    plot(migrasterObjT(),colNA=NA,axes=FALSE,asp=1) 
     plot(coastlinesObj(), add = TRUE)
   })
   
   return(reactive({ current() }))
 }
+
+
+#error in evaluating the argument 'x' in selecting a method for function 'plot': missing value where TRUE/FALSE needed
