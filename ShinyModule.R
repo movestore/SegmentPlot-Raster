@@ -94,4 +94,3 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
 }
 
 
-#error in evaluating the argument 'x' in selecting a method for function 'plot': missing value where TRUE/FALSE needed
