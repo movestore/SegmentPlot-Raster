@@ -3,7 +3,7 @@
     {
       "id": "grid",
       "name": "Grid size for raster output",
-      "description": "Select grid size for the migration raster. Start with larger values to test run time.",
+      "description": "Select grid size (number of cells per each axis) for the migration raster. Start with larger values to test run time.",
       "defaultValue": 50000,
       "type": "INTEGER"
     },
@@ -49,5 +49,31 @@
         "name": "rgeos"
       }
     ]
+  },
+  "license": {
+    "key": "MIT"
+  },
+  "language": "eng",
+  "keywords": [
+    "segmentation",
+    "raster",
+    "migration",
+    "map",
+	"coastlines"
+  ],
+  "people": [
+    {
+      "firstName": "Andrea",
+      "middleInitials": null,
+      "lastName": "Kölzsch",
+      "email": "akoelzsch@ab.mpg.de",
+      "roles": ["author", "creator"],
+      "orcid": "0000-0003-0193-1563",
+      "affiliation": "Max-Planck-Institute of Animal Behavior",
+      "affiliationRor": "https://ror.org/026stee22"
+    }
+  ],
+  "documentation" : {
+    "url": "https://github.com/movestore/SegmentPlot-Raster/blob/master/README.md"
   }
 }

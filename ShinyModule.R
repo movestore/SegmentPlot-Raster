@@ -43,7 +43,11 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
   
   migrasterObj <- reactive({
     data.split <- move::split(dataObj())
-    data.split_nozero <- data.split[unlist(lapply(data.split, length) > 1)] #remove all move objects with less than 2 positions
+    
+    #remove all move objects with less than 2 positions
+    data.split_nozero <- data.split[unlist(lapply(data.split, length) > 1)]
+    if (length(data.split_nozero)==0) logger.info("Warning! Error! There are no segments (or at least 2 positions) in your data set. No rasterization of the tracks possible.") # this is very unlikely, therefore not adaption in the below code for it.
+
     L <- foreach(datai = data.split_nozero) %do% {
       print(namesIndiv(datai))
       Line(coordinates(datai))
@@ -61,7 +65,7 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
     
     if (input$meth=="fast")
     {
-      logger.info(paste("fasterize() for fast raster plotting. Calculated buffer polygon of width",input$grid/2,". Buffer slow if dense points."))
+      logger.info(paste("fasterize() for fast raster plotting. Calculated buffer polygon of width",input$grid/4,". Buffer slow if dense points."))
       sLsT.poly <- gBuffer(sLsT,width=input$grid/4) #this seems to be a bottleneck for dense data
       sLsT.sf <- st_as_sf(sLsT.poly)
       out <- fasterize(sLsT.sf,outputRaster,fun="count")
