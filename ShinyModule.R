@@ -22,7 +22,7 @@ shinyModuleUserInterface <- function(id, label, grid = 50000, meth="sf") {
                  label = "Select rasterizing method",
                  choices = c("st_rasterize of lines (fast and new)" = "sf","fasterize with buffer (slow for dense data)" = "fast", "rasterize as lines (slow for large data)"="rast"),
                  selected = meth, inline = TRUE),
-    plotOutput(ns("map"))
+    plotOutput(ns("map"),height="90vh")
   )
 }
 
