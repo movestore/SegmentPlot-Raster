@@ -4,7 +4,7 @@ MoveApps
 Github repository: *github.com/movestore/SegmentPlot-Raster*
 
 ## Description
-Maps movement tracks on a (user defined) raster and plots it into a shiny UI with coastlines overlaid. Developed to plot large data amounts of e.g. migration tracks. 
+Maps movement tracks on a (user defined) raster and plots it into a shiny UI with coastlines overlaid. Developed to plot large data amounts of e.g. migration tracks. Proper performance for up to 50,000 locations, comfortable performance less than 10,000 locations.
 
 ## Documentation
 For a set of movement tracks an interactive raster map is generated. For better visibility the raster is overlaid with  (10 m resolution) coastlines that were downloaded from https://www.naturalearthdata.com/.
