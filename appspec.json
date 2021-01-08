@@ -14,6 +14,10 @@
       "defaultValue": "fast",
       "type": "RADIOBUTTONS",
       "options": [
+	    {
+          "value": "sf",
+          "displayText": "sf_rasterize - quick and new"
+        },
         {
           "value": "fast",
           "displayText": "fasterize with buffer around lines"
@@ -44,6 +48,12 @@
       },
 	        {
         "name": "fasterize"
+      },
+	  {
+        "name": "fields"
+      },
+      {
+        "name": "stars"
       },
 	        {
         "name": "rgeos"

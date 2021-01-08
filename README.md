@@ -9,7 +9,12 @@ Maps movement tracks on a (user defined) raster and plots it into a shiny UI wit
 ## Documentation
 For a set of movement tracks an interactive raster map is generated. For better visibility the raster is overlaid with  (10 m resolution) coastlines that were downloaded from https://www.naturalearthdata.com/.
 
-The creation of the raster map starts with a transformation of the tracks into spatial lines and a transformation of those lines to the `aeqd`(area equal distance) projection. This is necessary for regular raster cells. Next, if the fasterize method is selected, buffers with width 1/4 of the grid size are calculated around the lines and transformed into a raster. If the rasterize method is selected, the spatial lines are directly transformed into a raster with values being the number of lines passing through the respective cell.
+The creation of the raster map starts with a transformation of the tracks into spatial lines and a transformation of those lines to the `aeqd`(area equal distance) projection. This is necessary for regular raster cells. 
+
+The next steps depend on the selected rasterization method.
+1) sf_rasterize transforms the data into a line segment object and determines which cells are crossed or touched by the line. Here simply the events of touching/crossing are summed up over the individuals.
+2)For the fasterize method, first buffers with width 1/4 of the grid size are calculated around the lines. The resulting polygons are then transformed into a raster.
+3) If the rasterize method is selected, the spatial lines are directly transformed into a raster with values being the number of lines passing through the respective cell. Here the lengths of the line segments passing through each cell are summed.
 
 :warning: Input segments of length < 2 are removed. The case that there are no segments of at least 2 locations in the input data set is indicated by a warning, but the code is still attempted to run. This will lead to an error.
 
@@ -26,12 +31,12 @@ none
 ### Parameters 
 `grid`: Number of grid cells for the x- as well as y-axis of the raster plot. Only quadratic plots allowed.
 
-`meth`: Rasterisation method to use. The options are `fasterize` and `rasterize`. Both create raster objects of a set of location data. Fasterize is much faster, but uses a spatial buffer around the points, rasterize takes exact lines between locations but is slow for larger data sets.
+`meth`: Rasterisation method to use. The options are `sf_rasterize`, `fasterize` and `rasterize`. All three create raster objects of a set of location data. Sf_rasterize is by far the fastest option, but only sums the number of individuals that have crossed or touched each cell. Fasterize differs in that it uses a spatial buffer around the points and does not sum by individuals. Rasterize takes exact lines between locations and sums the line lengths passing through each cell, but is slow for larger data sets.
 
 ### Null or error handling:
 **Parameter `grid`:** The default grid size is 50,000. If this value does not fit the data, usually only one giant grid cell is determiend, a warning is given. If the grid size is too large, the analyses might take a very long time.
 
-**Parameter `meth`:** For the Radiobutton options no error or null input for `method`are possible. Long run times are possible for `rasterize`.
+**Parameter `meth`:** For the Radiobutton options no error or null input for `method`are possible. Long run times are possible for `rasterize` and `fasterize`.
 
 **Data:** For the use in further Apps, the input data set is returned.
 

@@ -5,10 +5,12 @@ library('foreach')
 library('sf')
 library('fasterize')
 library('rgeos')
+library('fields')
+library('stars')
 
 #setwd("/root/app/")
 
-shinyModuleUserInterface <- function(id, label, grid = 50000, meth="fast") {
+shinyModuleUserInterface <- function(id, label, grid = 50000, meth="sf") {
   ns <- NS(id)
   
   tagList(
@@ -18,7 +20,7 @@ shinyModuleUserInterface <- function(id, label, grid = 50000, meth="fast") {
                 value = grid, min = 1000, max = 300000),
     radioButtons(inputId = ns("meth"),
                  label = "Select rasterizing method",
-                 choices = c("fasterize with buffer (slow for dense data)" = "fast", "rasterize as lines (slow for large data)"="rast"),
+                 choices = c("st_rasterize of lines (fast and new)" = "sf","fasterize with buffer (slow for dense data)" = "fast", "rasterize as lines (slow for large data)"="rast"),
                  selected = meth, inline = TRUE),
     plotOutput(ns("map"))
   )
@@ -37,7 +39,7 @@ shinyModuleConfiguration <- function(id, input) {
   configuration
 }
 
-shinyModule <- function(input, output, session, data, grid = 50000, meth="fast") {
+shinyModule <- function(input, output, session, data, grid = 50000, meth="sf") {
   current <- reactiveVal(data)
   
     data.split <- move::split(data)
@@ -62,7 +64,25 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
     })
     
     out <- reactive({
-      if (input$meth=="fast")
+      if (input$meth=="sf")
+      {
+        logger.info(paste("sf_rasterize() - updated method with better performance."))
+        datat <- spTransform(data,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+        sarea <- st_bbox(datat, crs=CRS("+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs"))
+        grd <- st_as_stars(sarea,dx=input$grid,dy=input$grid,values=0) #have to transform into aequ, unit= m
+        sfrast <- lapply(data.split_nozero, function (x) {
+          xt <- spTransform(x,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+          ls <- st_sf(a = 1, st_sfc(st_linestring(coordinates(xt))), crs=CRS("+proj=longlat +datum=WGS84"))
+          tmp <- st_rasterize(ls, grd, options="ALL_TOUCHED=TRUE")
+          tmp[is.na(tmp)] <- 0
+          return(tmp)
+          message(paste("Done with ", xt@idData$local_identifier, ".", sep=""))
+        })
+      sumRas <- sfrast[[1]]
+      for (i in seq(along=sfrast)[-1]) sumRas <- sumRas+sfrast[[i]]
+      sumRas[sumRas==0] <- NA
+      res <- as(sumRas,"Raster")
+      } else if (input$meth=="fast")
       {
         logger.info(paste("fasterize() for fast raster plotting. Calculated buffer polygon of width",input$grid/4,". Buffer slow if dense points."))
         
@@ -74,7 +94,7 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
         values(res) <- 1
         logger.info("Output is just one raster cell with NA density. Likely not enough data points or too large grid size. Return single cell raster with value 1.")
         }
-      } else
+      } else if (input$meth=="rast")
       {
       logger.info("rasterize() for more flexible and correct, but slow raster plotting. No buffer.")
       res <- rasterize(sLsT,outputRaster(),fun=function(x,...) sum(length(x)),update=TRUE)
@@ -83,7 +103,7 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
         values(res) <- 1
         logger.info("Output is just one raster cell with NA density. Likely not enough data points or too large grid size. Return single cell raster with value 1.")
         }
-      }
+      } else (logger.info("No valid rasterization method selected"))
       res
     })
     
@@ -97,7 +117,7 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="fast")
   #})
   
   output$map <- renderPlot({
-    plot(out(),colNA=NA,axes=FALSE,asp=1) 
+    plot(out(),colNA=NA,axes=FALSE,asp=1,col=tim.colors(96)) 
     plot(coast, add = TRUE)
   })
   
