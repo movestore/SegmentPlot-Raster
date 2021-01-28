@@ -97,7 +97,8 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="sf") {
       } else if (input$meth=="rast")
       {
       logger.info("rasterize() for more flexible and correct, but slow raster plotting. No buffer.")
-      res <- rasterize(sLsT,outputRaster(),fun=function(x,...) sum(length(x)),update=TRUE)
+      res <- rasterize(sLsT,outputRaster(),fun=function(x,...) sum(length(na.omit(x))),update=TRUE,background=NA)
+      res[res==0] <- NA
       if (length(res)==1 & is.na(values(res)[1]))
         {
         values(res) <- 1
@@ -117,7 +118,7 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="sf") {
   #})
   
   output$map <- renderPlot({
-    plot(out(),colNA=NA,axes=FALSE,asp=1,col=tim.colors(96)) 
+    plot(out(),colNA=NA,axes=FALSE,asp=1,col=tim.colors(256))
     plot(coast, add = TRUE)
   })
   
