@@ -7,14 +7,14 @@
       "defaultValue": 50000,
       "type": "INTEGER"
     },
-	{
+    {
       "id": "meth",
       "name": "Method to transform into raster plot",
       "description": "Select which function you want to use for rasterization",
       "defaultValue": "fast",
       "type": "RADIOBUTTONS",
       "options": [
-	    {
+        {
           "value": "sf",
           "displayText": "sf_rasterize - quick and new"
         },
@@ -22,12 +22,12 @@
           "value": "fast",
           "displayText": "fasterize with buffer around lines"
         },
-                {
+        {
           "value": "rast",
           "displayText": "rasterize as correct lines (slow for large data)"
         }
-	  ]
-	}
+      ]
+    }
   ],
   "dependencies": {
     "R": [
@@ -37,25 +37,25 @@
       {
         "name": "raster"
       },
-	        {
+      {
         "name": "move"
       },
-	        {
+      {
         "name": "foreach"
       },
-	        {
+      {
         "name": "sf"
       },
-	        {
+      {
         "name": "fasterize"
       },
-	  {
+      {
         "name": "fields"
       },
       {
         "name": "stars"
       },
-	        {
+      {
         "name": "rgeos"
       }
     ]
@@ -69,7 +69,7 @@
     "raster",
     "migration",
     "map",
-	"coastlines"
+    "coastlines"
   ],
   "people": [
     {
@@ -77,13 +77,16 @@
       "middleInitials": null,
       "lastName": "Kölzsch",
       "email": "akoelzsch@ab.mpg.de",
-      "roles": ["author", "creator"],
+      "roles": [
+        "author",
+        "creator"
+      ],
       "orcid": "0000-0003-0193-1563",
       "affiliation": "Max-Planck-Institute of Animal Behavior",
       "affiliationRor": "https://ror.org/026stee22"
     }
   ],
-  "documentation" : {
+  "documentation": {
     "url": "https://github.com/movestore/SegmentPlot-Raster/blob/master/README.md"
   }
 }
