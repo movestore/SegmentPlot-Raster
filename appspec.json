@@ -29,6 +29,12 @@
       ]
     }
   ],
+  "providedAppFiles": [
+    {
+      "settingId": "coastlines",
+      "from": "ne-coastlines-10m"
+    }
+  ],
   "dependencies": {
     "R": [
       {
