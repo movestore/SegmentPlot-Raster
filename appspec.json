@@ -11,7 +11,7 @@
       "id": "meth",
       "name": "Method to transform into raster plot",
       "description": "Select which function you want to use for rasterization",
-      "defaultValue": "fast",
+      "defaultValue": "sf",
       "type": "RADIOBUTTONS",
       "options": [
         {
