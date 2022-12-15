@@ -109,7 +109,7 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="sf") {
     })
     
   #coastlinesObj <- reactive({
-    coastlines <- readOGR(paste0(getAppFilePath(coastlines),"/ne_10m_coastline.shp"))
+    coastlines <- readOGR(paste0(getAppFilePath("coastlines"),"/ne_10m_coastline.shp"))
     #if (raster::area(gEnvelope(migrasterObj())) > input$grid) 
     coastlinesC <- crop(coastlines,extent(sLs)) 
     #else coastlinesC <- coastlines
