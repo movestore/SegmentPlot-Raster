@@ -1,34 +1,5 @@
 {
-  "settings": [
-    {
-      "id": "grid",
-      "name": "Grid size for raster output",
-      "description": "Select grid size (number of cells per each axis) for the migration raster. Start with larger values to test run time.",
-      "defaultValue": 50000,
-      "type": "INTEGER"
-    },
-    {
-      "id": "meth",
-      "name": "Method to transform into raster plot",
-      "description": "Select which function you want to use for rasterization",
-      "defaultValue": "sf",
-      "type": "RADIOBUTTONS",
-      "options": [
-        {
-          "value": "sf",
-          "displayText": "sf_rasterize - quick and new"
-        },
-        {
-          "value": "fast",
-          "displayText": "fasterize with buffer around lines"
-        },
-        {
-          "value": "rast",
-          "displayText": "rasterize as correct lines (slow for large data)"
-        }
-      ]
-    }
-  ],
+  "settings": [],
   "providedAppFiles": [
     {
       "settingId": "coastlines",
