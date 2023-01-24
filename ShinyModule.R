@@ -106,17 +106,17 @@ shinyModule <- function(input, output, session, data) {
 
   #coastlinesObj <- reactive({
     # coastlines <- readOGR(paste0(getAppFilePath("coastlines"),"/ne_10m_coastline.shp"))
-    coastlines <- readOGR(paste0(getAppFilePath("coastlines")),"ne_10m_coastline") #appspec does not show path, necessary?
+    ##coastlines <- readOGR(paste0(getAppFilePath("coastlines")),"ne_10m_coastline") #appspec does not show path, necessary?
     #if (raster::area(gEnvelope(migrasterObj())) > input$grid)
-    coastlinesC <- crop(coastlines,extent(sLs))
+    ##coastlinesC <- crop(coastlines,extent(sLs))
     #else coastlinesC <- coastlines
-    coast <- spTransform(coastlinesC,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+    ##coast <- spTransform(coastlinesC,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
   #  coast
   #})
 
   output$map <- renderPlot({
     plot(out(),colNA=NA,axes=FALSE,asp=1,col=tim.colors(256))
-    plot(coast, add = TRUE)
+    ##plot(coast, add = TRUE)
   })
   
   return(reactive({ current() }))
