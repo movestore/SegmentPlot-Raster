@@ -3,7 +3,7 @@
   "providedAppFiles": [
     {
       "settingId": "coastlines",
-      "from": "ne-coastlines-10m"
+      "from": "ne-coastlines-10m/"
     }
   ],
   "dependencies": {
@@ -61,7 +61,17 @@
       "orcid": "0000-0003-0193-1563",
       "affiliation": "Max-Planck-Institute of Animal Behavior",
       "affiliationRor": "https://ror.org/026stee22"
-    }
+    },
+    {
+  "firstName": "Anne",
+  "middleInitials": "K",
+  "lastName": "Scharf",
+  "email": "ascharf@ab.mpg.de",
+  "roles": ["contributor"],
+  "orcid": "0000-0002-3357-8533",
+  "affiliation": "Max-Planck-Institute of Animal Behavior",
+  "affiliationRor": "https://ror.org/026stee22"
+}
   ],
   "documentation": {
     "url": "https://github.com/movestore/SegmentPlot-Raster/blob/master/README.md"
