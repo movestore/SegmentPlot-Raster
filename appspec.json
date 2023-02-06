@@ -32,7 +32,7 @@
   "providedAppFiles": [
     {
       "settingId": "coastlines",
-      "from": "ne-coastlines-10m"
+      "from": "ne-coastlines-10m/"
     }
   ],
   "dependencies": {
