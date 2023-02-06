@@ -29,14 +29,10 @@ Shiny user interface (UI)
 none
 
 ### Parameters 
-`grid`: Number of grid cells for the x- as well as y-axis of the raster plot. Only quadratic plots allowed.
-
-`meth`: Rasterisation method to use. The options are `sf_rasterize`, `fasterize` and `rasterize`. All three create raster objects of a set of location data. Sf_rasterize is by far the fastest option, but only sums the number of individuals that have crossed or touched each cell. Fasterize differs in that it uses a spatial buffer around the points and does not sum by individuals. Rasterize takes exact lines between locations and sums the line lengths passing through each cell, but is slow for larger data sets.
+`Choose a raster grid size in `: Number of grid cells for the x- as well as y-axis of the raster plot. Only quadratic plots allowed.
 
 ### Null or error handling:
-**Parameter `grid`:** The default grid size is 50,000. If this value does not fit the data, usually only one giant grid cell is determiend, a warning is given. If the grid size is too large, the analyses might take a very long time.
-
-**Parameter `meth`:** For the Radiobutton options no error or null input for `method`are possible. Long run times are possible for `rasterize` and `fasterize`.
+**Parameter `Choose a raster grid size in `:** The default grid size is 50,000. If this value does not fit the data, usually only one giant grid cell is determiend, a warning is given. If the grid size is too large, the analyses might take a very long time.
 
 **Data:** For the use in further Apps, the input data set is returned.
 

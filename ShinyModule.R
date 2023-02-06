@@ -3,43 +3,39 @@ library('shiny')
 library('raster')
 library('foreach')
 library('sf')
-library('fasterize')
+#library('fasterize')
 library('rgeos')
 library('fields')
 library('stars')
+#library("shinycssloaders")
 
 #setwd("/root/app/")
 
-shinyModuleUserInterface <- function(id, label, grid = 50000, meth="sf") {
+## adjust placements of grid ant meth
+## fix reading in costlines
+## maybe rethink panel title...
+
+shinyModuleUserInterface <- function(id, label) {
   ns <- NS(id)
   
   tagList(
-    titlePanel("Raster map of migration density"),
-    sliderInput(inputId = ns("grid"), 
+    titlePanel("Fast raster map (sf)"),
+    fluidRow(
+      column(3, sliderInput(inputId = ns("grid"), 
                 label = "Choose a raster grid size in m", 
-                value = grid, min = 1000, max = 300000),
-    radioButtons(inputId = ns("meth"),
-                 label = "Select rasterizing method",
-                 choices = c("st_rasterize of lines (fast and new)" = "sf","fasterize with buffer (slow for dense data)" = "fast", "rasterize as lines (slow for large data)"="rast"),
-                 selected = meth, inline = TRUE),
-    plotOutput(ns("map"),height="90vh")
+                value = 50000, min = 1000, max = 300000))
+      # column(8,radioButtons(inputId = ns("meth"),
+      #           label = "Select rasterizing method",
+      #           choices = c("st_rasterize of lines (fast and new)" = "sf","fasterize with buffer (slow for dense data)" = "fast", "rasterize as lines (slow for large data)"="rast"),
+      #           selected = "sf", inline = TRUE))
+    ),
+    
+    plotOutput(ns("map"),height="85vh")
   )
 }
 
-shinyModuleConfiguration <- function(id, input) {
-  ns <- NS(id)
-  configuration <- list()
 
-  print(ns('grid'))
-  configuration["grid"] <- input[[ns('grid')]]
-
-  print(ns('meth'))
-  configuration["meth"] <- input[[ns('meth')]]
-  
-  configuration
-}
-
-shinyModule <- function(input, output, session, data, grid = 50000, meth="sf") {
+shinyModule <- function(input, output, session, data) {
   current <- reactiveVal(data)
   
     data.split <- move::split(data)
@@ -64,8 +60,8 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="sf") {
     })
     
     out <- reactive({
-      if (input$meth=="sf")
-      {
+      # if (input$meth=="sf")
+      # {
         logger.info(paste("sf_rasterize() - updated method with better performance."))
         datat <- spTransform(data,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
         sarea <- st_bbox(datat, crs=CRS("+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs"))
@@ -82,41 +78,43 @@ shinyModule <- function(input, output, session, data, grid = 50000, meth="sf") {
       for (i in seq(along=sfrast)[-1]) sumRas <- sumRas+sfrast[[i]]
       sumRas[sumRas==0] <- NA
       res <- as(sumRas,"Raster")
-      } else if (input$meth=="fast")
-      {
-        logger.info(paste("fasterize() for fast raster plotting. Calculated buffer polygon of width",input$grid/4,". Buffer slow if dense points."))
-        
-      sLsT.poly <- gBuffer(sLsT,width=input$grid/4) #this seems to be a bottleneck for dense data
-      sLsT.sf <- st_as_sf(sLsT.poly)
-      res <- fasterize(sLsT.sf,outputRaster(),fun="count")
-      if (length(res)==1 & is.na(values(res)[1]))
-        {
-        values(res) <- 1
-        logger.info("Output is just one raster cell with NA density. Likely not enough data points or too large grid size. Return single cell raster with value 1.")
-        }
-      } else if (input$meth=="rast")
-      {
-      logger.info("rasterize() for more flexible and correct, but slow raster plotting. No buffer.")
-      res <- rasterize(sLsT,outputRaster(),fun=function(x,...) sum(length(na.omit(x))),update=TRUE,background=NA)
-      res[res==0] <- NA
-      if (length(res)==1 & is.na(values(res)[1]))
-        {
-        values(res) <- 1
-        logger.info("Output is just one raster cell with NA density. Likely not enough data points or too large grid size. Return single cell raster with value 1.")
-        }
-      } else (logger.info("No valid rasterization method selected"))
+      # } else if (input$meth=="fast")
+      # {
+      #   logger.info(paste("fasterize() for fast raster plotting. Calculated buffer polygon of width",input$grid/4,". Buffer slow if dense points."))
+      # 
+      # sLsT.poly <- gBuffer(sLsT,width=input$grid/4) #this seems to be a bottleneck for dense data
+      # sLsT.sf <- st_as_sf(sLsT.poly)
+      # res <- fasterize(sLsT.sf,outputRaster(),fun="count")
+      # if (length(res)==1 & is.na(values(res)[1]))
+      #  {
+      #   values(res) <- 1
+      #   logger.info("Output is just one raster cell with NA density. Likely not enough data points or too large grid size. Return single cell raster with value 1.")
+      #   }
+      # } else if (input$meth=="rast")
+      # {
+      # logger.info("rasterize() for more flexible and correct, but slow raster plotting. No buffer.")
+      # res <- rasterize(sLsT,outputRaster(),fun=function(x,...) sum(length(na.omit(x))),update=TRUE,background=NA)
+      # res[res==0] <- NA
+      # if (length(res)==1 & is.na(values(res)[1]))
+      #   {
+      #   values(res) <- 1
+      #   logger.info("Output is just one raster cell with NA density. Likely not enough data points or too large grid size. Return single cell raster with value 1.")
+      #   }
+      # } else (logger.info("No valid rasterization method selected"))
       res
     })
-    
+
   #coastlinesObj <- reactive({
-    coastlines <- readOGR(paste0(getAppFilePath("coastlines"),"ne_10m_coastline"))
-    #if (raster::area(gEnvelope(migrasterObj())) > input$grid) 
-    coastlinesC <- crop(coastlines,extent(sLs)) 
+    coastlines <- readOGR(dsn=getAppFilePath("coastlines"),layer="ne_10m_coastline")
+    # coastlines <- readOGR(dsn="./ne-coastlines-10m/",layer="ne_10m_coastline")
+    ##coastlines <- readOGR(paste0(getAppFilePath("coastlines")),"ne_10m_coastline") #appspec does not show path, necessary?
+    #if (raster::area(gEnvelope(migrasterObj())) > input$grid)
+   coastlinesC <- crop(coastlines,extent(sLs))
     #else coastlinesC <- coastlines
     coast <- spTransform(coastlinesC,CRSobj="+proj=aeqd +lat_0=53 +lon_0=24 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
   #  coast
   #})
-  
+
   output$map <- renderPlot({
     plot(out(),colNA=NA,axes=FALSE,asp=1,col=tim.colors(256))
     plot(coast, add = TRUE)
