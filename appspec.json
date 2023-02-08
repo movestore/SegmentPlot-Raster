@@ -2,8 +2,8 @@
   "settings": [],
   "providedAppFiles": [
     {
-      "settingId": "coastlines",
-      "from": "ne-coastlines-10m/"
+      "settingId": "ne-coastlines-10m",
+      "from": "ne-coastlines-10m"
     }
   ],
   "dependencies": {
@@ -34,6 +34,9 @@
       },
       {
         "name": "rgeos"
+      },
+      {
+        "name":"shinycssloaders"
       }
     ]
   },

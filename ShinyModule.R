@@ -7,7 +7,7 @@ library('sf')
 library('rgeos')
 library('fields')
 library('stars')
-#library("shinycssloaders")
+library("shinycssloaders")
 
 #setwd("/root/app/")
 
@@ -30,7 +30,7 @@ shinyModuleUserInterface <- function(id, label) {
       #           selected = "sf", inline = TRUE))
     ),
     
-    plotOutput(ns("map"),height="85vh")
+    withSpinner(plotOutput(ns("map"),height="85vh"))
   )
 }
 
@@ -105,7 +105,7 @@ shinyModule <- function(input, output, session, data) {
     })
 
   #coastlinesObj <- reactive({
-    coastlines <- readOGR(dsn=getAppFilePath("coastlines"),layer="ne_10m_coastline")
+    coastlines <- readOGR(dsn=getAppFilePath("ne-coastlines-10m"),layer="ne_10m_coastline")
     # coastlines <- readOGR(dsn="./ne-coastlines-10m/",layer="ne_10m_coastline")
     ##coastlines <- readOGR(paste0(getAppFilePath("coastlines")),"ne_10m_coastline") #appspec does not show path, necessary?
     #if (raster::area(gEnvelope(migrasterObj())) > input$grid)
