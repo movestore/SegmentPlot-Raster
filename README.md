@@ -1,4 +1,4 @@
-# Segment Raster Plot
+# Fast Raster Map (sf)
 MoveApps
 
 Github repository: *github.com/movestore/SegmentPlot-Raster*
@@ -28,11 +28,11 @@ Shiny user interface (UI)
 ### Artefacts
 none
 
-### Parameters 
+### Settings
 `Choose a raster grid size in `: Number of grid cells for the x- as well as y-axis of the raster plot. Only quadratic plots allowed.
 
 ### Null or error handling:
-**Parameter `Choose a raster grid size in `:** The default grid size is 50,000. If this value does not fit the data, usually only one giant grid cell is determiend, a warning is given. If the grid size is too large, the analyses might take a very long time.
+**Setting `Choose a raster grid size in `:** The default grid size is 50,000. If this value does not fit the data, usually only one giant grid cell is determiend, a warning is given. If the grid size is too large, the analyses might take a very long time.
 
 **Data:** For the use in further Apps, the input data set is returned.
 
